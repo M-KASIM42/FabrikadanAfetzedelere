@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "565636156875",
+    "project_id": "fir-oturumacma-9584f",
+    "storage_bucket": "fir-oturumacma-9584f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:565636156875:android:a6e6594b13155a5bfa7a4e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "565636156875-r3ga09lu6qk9qhnfjno4v2jccib177q8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGbTuqEa6T053qB-Iqcs-ELl-ex5vawrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "565636156875-r3ga09lu6qk9qhnfjno4v2jccib177q8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
