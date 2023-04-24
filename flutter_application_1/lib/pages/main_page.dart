@@ -27,6 +27,7 @@ class _MainPageState extends State<MainPage> {
       'displayName': user.displayName,
       'email': emails,
       'createdAt': 'kjchfvadbfc',
+      'Countr':"Turkey"
     });
   }
 
