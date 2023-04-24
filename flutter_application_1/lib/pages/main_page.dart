@@ -24,9 +24,9 @@ class _MainPageState extends State<MainPage> {
     final db = FirebaseFirestore.instance.collection('users');
     
     await db.doc(user.uid).set({
-      'displayName': 'deneme2',
+      'displayName': user.displayName,
       'email': emails,
-      'createdAt': "deneme2",
+      'createdAt': 'kjchfvad',
     });
   }
 
