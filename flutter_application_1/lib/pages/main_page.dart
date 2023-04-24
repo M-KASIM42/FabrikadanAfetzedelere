@@ -26,7 +26,7 @@ class _MainPageState extends State<MainPage> {
     await db.doc(user.uid).set({
       'displayName': user.displayName,
       'email': emails,
-      'createdAt': 'kjchfvad',
+      'createdAt': 'kjchfvadbfc',
     });
   }
 
