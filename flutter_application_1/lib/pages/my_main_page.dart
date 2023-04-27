@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_application_1/pages/torku_page.dart';
 
 class MyMainPage extends StatefulWidget {
   const MyMainPage({super.key});
@@ -47,18 +48,24 @@ class _MyMainPageState extends State<MyMainPage> {
                     onTap: (){
                       debugPrint(company['name']);
                     },
-                    child: Card(
-                      
-                      child: Column(
-                  
-                        children: [
-                          Image.network(company['photo']),
-                          Expanded(child: Container()),
-                          Text(company['name']),
-                          Text(company['phone']),
-                          SizedBox(height: 25,)
-                          
-                        ],
+                    child: InkWell(
+                      onTap: ()async {
+                       List<Map<String,dynamic>> temp = await getProducts(company['id']);
+                       Navigator.push(context, MaterialPageRoute(builder: (context)=> CompanyPage(list: temp,)));
+                      },
+                      child: Card(
+                        
+                        child: Column(
+                                      
+                          children: [
+                            Image.network(company['photo']),
+                            Expanded(child: Container()),
+                            Text(company['name']),
+                            Text(company['phone']),
+                            SizedBox(height: 25,)
+                            
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -83,4 +90,30 @@ class _MyMainPageState extends State<MyMainPage> {
           },
         );
   }
+
+Future<List<Map<String, dynamic>>> getProducts(String companyId) async {
+  DocumentReference companyRef = FirebaseFirestore.instance.collection('companies').doc(companyId);
+  CollectionReference products = companyRef.collection('products');
+  QuerySnapshot productSnapshot = await products.get();
+  List<Map<String,dynamic>> mylist = [];
+  for (QueryDocumentSnapshot product in productSnapshot.docs) {
+    mylist.add({'productname':product['productname'],'price':product['price'],'photo':product['photo']});
+  }
+  return mylist;
+  // for (var element in mylist) {
+  //   print(element.values);
+    
+  // }
+}
+_getProducts(List<Map<String,dynamic>> list){
+  return Container(
+    child: ListView.builder(itemCount: 3,itemBuilder: (context,index){
+      return ListTile(
+        title: list[index]['productname'],
+      );
+    }),
+  );
+}
+
+
 }
