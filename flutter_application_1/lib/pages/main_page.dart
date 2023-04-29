@@ -3,9 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/toplanti_yerleri.dart';
 
 import 'cart_page.dart';
-import 'my_account_page.dart';
+import 'AcilIhtiyac.dart';
 import 'my_main_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -25,7 +26,8 @@ class _MainPageState extends State<MainPage> {
   List pages = [
     MyMainPage(),
     CartPage(),
-    MyAccountPage(),
+    AcilIhtiyac(),
+    ToplantiYerleri()
   ];
   int _selectedIndex = 0;
 
@@ -103,8 +105,12 @@ class _MainPageState extends State<MainPage> {
               label: 'Sepet',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle),
-              label: 'Hesabım',
+              icon: Icon(Icons.live_help),
+              label: 'Acil İhtiyaç',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.live_help),
+              label: 'Toplantı Yerleri',
             ),
           ],
           currentIndex: _selectedIndex,

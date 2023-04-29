@@ -45,27 +45,22 @@ class _MyMainPageState extends State<MyMainPage> {
                 itemBuilder: (context, index) {
                   DocumentSnapshot company = snapshot.data!.docs[index];
                   return InkWell(
-                    onTap: (){
-                      debugPrint(company['name']);
+                    onTap: ()async {
+                     List<Map<String,dynamic>> temp = await getProducts(company['id']);
+                     Navigator.push(context, MaterialPageRoute(builder: (context)=> CompanyPage(list: temp,)));
                     },
-                    child: InkWell(
-                      onTap: ()async {
-                       List<Map<String,dynamic>> temp = await getProducts(company['id']);
-                       Navigator.push(context, MaterialPageRoute(builder: (context)=> CompanyPage(list: temp,)));
-                      },
-                      child: Card(
-                        
-                        child: Column(
-                                      
-                          children: [
-                            Image.network(company['photo']),
-                            Expanded(child: Container()),
-                            Text(company['name']),
-                            Text(company['phone']),
-                            SizedBox(height: 25,)
-                            
-                          ],
-                        ),
+                    child: Card(
+                      
+                      child: Column(
+                                    
+                        children: [
+                          Image.network(company['photo']),
+                          Expanded(child: Container()),
+                          Text(company['name']),
+                          Text(company['phone']),
+                          SizedBox(height: 25,)
+                          
+                        ],
                       ),
                     ),
                   );
