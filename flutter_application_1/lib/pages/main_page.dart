@@ -109,7 +109,7 @@ class _MainPageState extends State<MainPage> {
               label: 'Acil İhtiyaç',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.live_help),
+              icon: Icon(Icons.location_on),
               label: 'Toplantı Yerleri',
             ),
           ],

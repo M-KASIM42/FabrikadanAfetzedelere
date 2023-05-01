@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-import 'konum_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ToplantiYerleri extends StatefulWidget {
   const ToplantiYerleri({Key? key}) : super(key: key);
@@ -24,16 +23,19 @@ class _ToplantiYerleriState extends State<ToplantiYerleri> {
             itemBuilder: (context, index) {
               DocumentSnapshot yer = snapshot.data!.docs[index];
               return InkWell(
-                onTap: () {
+                onTap: () async {
                   GeoPoint point = snapshot.data!.docs[index].get('konum');
                   double latitude = point.latitude;
                   double longitude = point.longitude;
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            KonumPage(lat: latitude, long: longitude),
-                      ));
+                  final String googleMapsUrl =
+                      'https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}';
+                  // ignore: deprecated_member_use
+                  if (await canLaunch(googleMapsUrl)) {
+                    // ignore: deprecated_member_use
+                    await launch(googleMapsUrl);
+                  } else {
+                    throw 'Google Maps uygulaması açılamadı.';
+                  }
                 },
                 child: ListTile(
                   title: Text(yer['type']),
