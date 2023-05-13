@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -18,19 +16,15 @@ class _CartPageState extends State<CartPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    db.collection("users").doc(user!.uid).get().then((userDoc) => {
-      cartNumber = userDoc.data()!["user_carts"][
-                          "cartnumber"]
-    } );
+    db.collection("users").doc(user!.uid).get().then((userDoc) =>
+        {cartNumber = userDoc.data()!["user_carts"]["cartnumber"]});
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Container(
-      color: Colors.yellowAccent,
+      color: Colors.white,
       child: StreamBuilder<QuerySnapshot>(
         stream: db
             .collection("users")
@@ -39,11 +33,15 @@ class _CartPageState extends State<CartPage> {
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Text('Bir şeyler yanlış gitti');
+            return const Text('Bir şeyler yanlış gitti');
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Yükleniyor...");
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.greenAccent,
+              ),
+            );
           }
 
           return ListView.builder(

@@ -1,6 +1,9 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ToplantiYerleri extends StatefulWidget {
   const ToplantiYerleri({Key? key}) : super(key: key);
@@ -12,6 +15,19 @@ class ToplantiYerleri extends StatefulWidget {
 class _ToplantiYerleriState extends State<ToplantiYerleri> {
   final CollectionReference toplantiyerleri =
       FirebaseFirestore.instance.collection('aciltoplantiyerleri');
+  Future<void> requestLocationPermissions() async {
+    final permissions = await Permission.location.request();
+    if (permissions.isGranted) {
+      // izin verildi
+    } else if (permissions.isDenied) {
+      // izin reddedildi, kullanıcıya açıklama yapın
+      await openAppSettings();
+    } else if (permissions.isPermanentlyDenied) {
+      // izin kalıcı olarak reddedildi, kullanıcıyı ayarlara yönlendirin
+      await openAppSettings();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -24,6 +40,7 @@ class _ToplantiYerleriState extends State<ToplantiYerleri> {
               DocumentSnapshot yer = snapshot.data!.docs[index];
               return InkWell(
                 onTap: () async {
+                  await requestLocationPermissions();
                   GeoPoint point = snapshot.data!.docs[index].get('konum');
                   double latitude = point.latitude;
                   double longitude = point.longitude;

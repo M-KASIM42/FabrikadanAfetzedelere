@@ -1,6 +1,7 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
 
 class AcilIhtiyac extends StatefulWidget {
   const AcilIhtiyac({super.key});
@@ -15,7 +16,7 @@ class _AcilIhtiyacState extends State<AcilIhtiyac> {
     return Container(
       color: Colors.yellow,
       child: Column(
-        children: [
+        children: const [
           
           Center(
             child: Text("Acil İhtiyaçlar"),

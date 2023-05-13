@@ -393,7 +393,7 @@ packages:
     source: hosted
     version: "10.2.0"
   permission_handler_android:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: permission_handler_android
       sha256: "8028362b40c4a45298f1cbfccd227c8dd6caf0e27088a69f2ba2ab15464159e2"
