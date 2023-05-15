@@ -13,6 +13,15 @@ class CompanyPage extends StatefulWidget {
 class _CompanyPageState extends State<CompanyPage> {
   final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
+  int cartNumber = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    db.collection("users").doc(user.uid).get().then((userDoc) =>
+        {cartNumber = userDoc.data()!["user_carts"]["cartnumber"]});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,55 +32,68 @@ class _CompanyPageState extends State<CompanyPage> {
               return ListTile(
                 title: Text(widget.list[index]['productname']),
                 trailing: InkWell(
-                  child: Icon(Icons.add),
-                  onTap: () {
-                    db.collection("users").doc(user.uid).set({
-                      "email": user.email,
-                      "FullName": "Deneme Kullanıcı", // Kullanıcının ismi
-                      "user_carts": {
-                        "cartnumber": 1 // Kullanıcının ilk sepet numarası
-                      }
-                    }).then((value) {
-                      debugPrint("Kullanıcı ve sepet numarası oluşturuldu.");
-                    });
-                    db.collection("users").doc(user.uid).get().then((userDoc) {
-                      // Kullanıcının dokümanını al
-                      int cartnumber = userDoc.data()!["user_carts"][
-                          "cartnumber"]; // Kullanıcının mevcut sepet numarasını al
-                      int orderNumber = 1;
+                    child: Icon(Icons.add),
+                    onTap: () {
                       db
                           .collection("users")
                           .doc(user.uid)
-                          .collection("sepet_$orderNumber")
+                          .collection("sepet_$cartNumber")
                           .get()
                           .then((querySnapshot) {
-                        orderNumber +=
-                            querySnapshot.size; // Yeni sipariş numarası oluştur
-                        db
-                            .collection("users")
-                            .doc(user.uid)
-                            .collection("sepet_$cartnumber")
-                            .doc("order_$orderNumber")
-                            .set({
-                          "productName": widget.list[index]['productname'],
-                          "price": widget.list[index]['price']
-                        }).then((value) {
-                          debugPrint("Siparis eklendi");
-                          // Sepet numarasını bir artır ve güncellemeleri Firestore'a kaydet
-                          // cartnumber++;
-                          // userDoc.reference.update({
-                          //   "user_carts.cartnumber": cartnumber
-                          // }).then((value) {
-                          //   debugPrint("Sepet numarası güncellendi.");
-                          // });
+                        bool productAlreadyInCart = false;
+                        String productName = widget.list[index]['productname'];
+
+                        querySnapshot.docs.forEach((doc) {
+                          if (doc.data()['productName'] == productName) {
+                            productAlreadyInCart = true;
+                            int currentQuantity = doc.data()['quantity'];
+                            int newQuantity = currentQuantity + 1;
+
+                            // Belgenin quantity alanını güncelle
+                            db
+                                .collection("users")
+                                .doc(user.uid)
+                                .collection("sepet_$cartNumber")
+                                .doc(doc.id)
+                                .update({"quantity": newQuantity}).then(
+                                    (value) {
+                              debugPrint("Quantity artırıldı.");
+                            }).catchError((error) {
+                              debugPrint("Quantity artırma hatası: $error");
+                            });
+
+                            return;
+                          }
                         });
+
+                        if (!productAlreadyInCart) {
+                          // Ürün sepette değilse, sepete ekleme işlemini burada gerçekleştir
+                          int orderNumber = querySnapshot.size + 1;
+                          db
+                              .collection("users")
+                              .doc(user.uid)
+                              .collection("sepet_$cartNumber")
+                              .doc("order_$orderNumber")
+                              .set({
+                            "productName": widget.list[index]['productname'],
+                            "price": widget.list[index]['price'],
+                            "quantity": 1
+                          }).then((value) {
+                            debugPrint("Sipariş eklendi");
+                          });
+                        }
                       });
-                    });
-                  },
-                ),
+                    }),
               );
             }),
       ),
     );
   }
 }
+// Sepet numarasını bir artır ve güncellemeleri Firestore'a kaydet
+                            // cartnumber++;
+                            // userDoc.reference.update({
+                            //   "user_carts.cartnumber": cartnumber
+                            // }).then((value) {
+                            //   debugPrint("Sepet numarası güncellendi.");
+                            // });

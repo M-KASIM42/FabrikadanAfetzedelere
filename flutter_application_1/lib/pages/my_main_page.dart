@@ -28,6 +28,7 @@ class _MyMainPageState extends State<MyMainPage> {
     }).then((value) {
       debugPrint("Kullanıcı ve sepet numarası oluşturuldu.");
     });
+    
   }
   @override
   void initState() {
