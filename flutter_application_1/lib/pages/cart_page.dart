@@ -177,7 +177,7 @@ class _CartPageState extends State<CartPage> {
           return Text('Veriler alınırken bir hata oluştu.');
         }
 
-        return CircularProgressIndicator();
+        return const Center(child: Text("Sepet Yükleniyor"),);
       },
     );
   }

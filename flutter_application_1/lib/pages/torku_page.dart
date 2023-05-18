@@ -31,6 +31,7 @@ class _CompanyPageState extends State<CompanyPage> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(widget.list[index]['productname']),
+                subtitle: Text(widget.list[index]["price"] + "     TL"),
                 trailing: InkWell(
                     child: Icon(Icons.add),
                     onTap: () {
