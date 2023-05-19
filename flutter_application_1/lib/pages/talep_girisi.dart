@@ -39,8 +39,8 @@ class _TalepGirisiState extends State<TalepGirisi> {
       'adrestarifi': _adresTarifiController.text,
       'aciliyet': '3',
       'fullname': _fullNameController.text,
-      'il':selectedCity,
-      'ilce':selectedDistrict,
+      'il':selectedCity.toUpperCase(),
+      'ilce':selectedDistrict.toUpperCase(),
       'phone':_phoneController.text,
       'talep':_talepController.text
     };
@@ -58,12 +58,14 @@ class _TalepGirisiState extends State<TalepGirisi> {
             mainAxisAlignment: MainAxisAlignment.center,
             
             children: [
-              _buildContainer("İsim Soyisim", _fullNameController),
-              _buildContainer("Numara", _phoneController),
+              Text("Bilgilerinizi Eksiksiz bir şekilde giriniz",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+              SizedBox(height: 20,),
+              _buildContainer("İsim Soyisim", _fullNameController,20,1,TextInputType.name),
+              _buildContainer("Numara (555) 555 5555", _phoneController,10,1,TextInputType.phone),
               _buildCityExpansionTile(),
               _buildDistrictsExpansionTile(list),
-              _buildContainer("Adres Tarifi", _adresTarifiController),
-              _buildContainer("İhtiyaç talebinizi buraya yazabilirsiniz", _talepController),
+              _buildContainer("Adres Tarifi", _adresTarifiController,100,3,TextInputType.streetAddress),
+              _buildContainer("İhtiyaç talebinizi buraya yazabilirsiniz", _talepController,100,3,TextInputType.text),
               ElevatedButton(onPressed: (){
                 veriEkle();
                 Navigator.pop(context);
@@ -75,7 +77,7 @@ class _TalepGirisiState extends State<TalepGirisi> {
     );
   }
 
-  Widget _buildContainer(String hintText, TextEditingController controller) {
+  Widget _buildContainer(String hintText, TextEditingController controller,int maxlenght,int maxline,TextInputType type) {
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -83,11 +85,16 @@ class _TalepGirisiState extends State<TalepGirisi> {
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
       ),
-      child: TextField(
+      child: TextFormField(
+        
+        keyboardType: type,
+        maxLength: maxlenght,
+        maxLines: maxline,
         controller: controller,
         decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
           hintText: hintText,
+          
         ),
       ),
     );
@@ -95,8 +102,13 @@ class _TalepGirisiState extends State<TalepGirisi> {
 
   Widget _buildCityExpansionTile() {
     return Container(
-      margin: EdgeInsets.all(20),
-      padding: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: Colors.black)
+      ),
       child: FutureBuilder<List<Widget>>(
         future: _buildExpansionTileContent(context),
         builder: (context, snapshot) {
@@ -142,16 +154,19 @@ class _TalepGirisiState extends State<TalepGirisi> {
             list = ilceler;
           });
         },
-        trailing: Icon(Icons.keyboard_arrow_right),
-        //subtitle: selectedCity == e["il_adi"] ? _buildDistrictsExpansionTile(ilceler) : null,
       );
     }).toList();
   }
 
   Widget _buildDistrictsExpansionTile(List<Map<String, dynamic>> districts) {
     return Container(
-      margin: EdgeInsets.all(20),
-      padding: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
       child: ExpansionTile(
         title: Text(selectedDistrict.isEmpty ? "İlçe Seçiniz" : selectedDistrict),
         children: districts.map((district) {
@@ -162,7 +177,6 @@ class _TalepGirisiState extends State<TalepGirisi> {
                 selectedDistrict = district['ilce_adi'].toString();
               });
             },
-            trailing: Icon(Icons.keyboard_arrow_right),
           );
         }).toList(),
       ),

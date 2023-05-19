@@ -1,49 +1,95 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DenemePage extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ExpansionTile Örneği',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('ExpansionTile Örneği'),
-        ),
-        body: FutureBuilder<List<Widget>>(
-          future: _buildExpansionTile(context),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Hata: ${snapshot.error}');
-            } else {
-              return ListView(
-                children: [
-                  ExpansionTile(
-                    title: Text("Şehir Seçiniz"),
-                    children: snapshot.data ?? [],
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-      ),
-    );
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  TextEditingController _searchController1 = TextEditingController();
+  TextEditingController _searchController2 = TextEditingController();
+  List<DocumentSnapshot> _searchResults = [];
+
+  void _searchData(String searchText) {
+    FirebaseFirestore.instance
+        .collection('AcilIhtiyaclar') // Verilerinizi tuttuğunuz koleksiyon adı
+        .where('il', isGreaterThanOrEqualTo: searchText)
+        .where('il', isLessThan: searchText + 'z')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      setState(() {
+        _searchResults = querySnapshot.docs;
+      });
+    });
+  }
+  void _searchDataa(String searchText) {
+    FirebaseFirestore.instance
+        .collection('AcilIhtiyaclar') // Verilerinizi tuttuğunuz koleksiyon adı
+        .where('ilce', isGreaterThanOrEqualTo: searchText)
+        .where('ilce', isLessThan: searchText + 'z')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      setState(() {
+        _searchResults = querySnapshot.docs;
+      });
+    });
   }
 
-  Future<List<Widget>> _buildExpansionTile(BuildContext context) async {
-    String jsonString =
-        await DefaultAssetBundle.of(context).loadString("assets/veri.json");
-    List<dynamic> jsonData = json.decode(jsonString);
-    List<Map<String, dynamic>> parsedData =
-        jsonData.cast<Map<String, dynamic>>();
-    return parsedData
-        .map((e) => ListTile(title: Text(e["il_adi"].toString())))
-        .toList();
+  @override
+  void dispose() {
+    _searchController1.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Veri Arama'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              controller: _searchController1,
+              onChanged: (value) {
+                _searchData(value);
+              },
+              decoration: InputDecoration(
+                labelText: 'İl Giriniz',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              controller: _searchController2,
+              onChanged: (value) {
+                _searchDataa(value);
+              },
+              decoration: InputDecoration(
+                labelText: 'İlçe Giriniz',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                // Verilerinizi burada listeleyebilirsiniz
+                return ListTile(
+                  title: Text(_searchResults[index]["adrestarifi"]),
+                  subtitle: Text(_searchResults[index]["talep"]),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

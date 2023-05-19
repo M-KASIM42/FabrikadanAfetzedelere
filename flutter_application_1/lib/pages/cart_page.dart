@@ -169,9 +169,11 @@ class _CartPageState extends State<CartPage> {
             totalPrice += subtotal;
           });
 
-          return Text(
-            'Sepet Toplamı: $totalPrice',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          return Center(
+            child: Text(
+              'Sepet Toplamı: $totalPrice',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           );
         } else if (snapshot.hasError) {
           return Text('Veriler alınırken bir hata oluştu.');

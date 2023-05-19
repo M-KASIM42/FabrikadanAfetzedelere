@@ -1,63 +1,97 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_application_1/pages/talep_girisi.dart';
 
 class AcilIhtiyac extends StatefulWidget {
-  const AcilIhtiyac({super.key});
-
   @override
-  State<AcilIhtiyac> createState() => _AcilIhtiyacState();
+  _AcilIhtiyacState createState() => _AcilIhtiyacState();
 }
 
 class _AcilIhtiyacState extends State<AcilIhtiyac> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CollectionReference _acilIhtiyaclarRef =
-      FirebaseFirestore.instance.collection('AcilIhtiyaclar');
+  TextEditingController _searchController1 = TextEditingController();
+  TextEditingController _searchController2 = TextEditingController();
+  List<QueryDocumentSnapshot> _searchResults = [];
+
+  void _searchData(String searchText) {
+    FirebaseFirestore.instance
+        .collection('AcilIhtiyaclar')
+        .where('il', isGreaterThanOrEqualTo: searchText)
+        .where('il', isLessThan: searchText + 'z')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      setState(() {
+        _searchResults = querySnapshot.docs;
+      });
+    });
+  }
+
+  void _searchDataa(String searchText) {
+    FirebaseFirestore.instance
+        .collection('AcilIhtiyaclar')
+        .where('ilce', isGreaterThanOrEqualTo: searchText)
+        .where('ilce', isLessThan: searchText + 'z')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      setState(() {
+        _searchResults = querySnapshot.docs;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      StreamBuilder<QuerySnapshot>(
-        stream: _acilIhtiyaclarRef.snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Text('Hata: ${snapshot.error}');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
-
-          return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Map<String, dynamic> veri = document.data() as Map<String, dynamic>;
-              String fullname = veri['fullname'];
-              String il = veri['il'];
-              String ilce = veri['ilce'];
-
-              return ListTile(
-                title: Text('Ad: $fullname'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('İhtiyaç: $il'),
-                    Text('Miktar: $ilce'),
-                  ],
-                ),
-              );
-            }).toList(),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TalepGirisi()),
           );
-        },),
-      Positioned(
-        bottom: 20,
-        right: 20,
-        child: FloatingActionButton(
-          child: const Icon(Icons.add,color: Colors.white),
-          onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (talep)=>TalepGirisi()));
-        }),
-      )
-    ]);
+        },
+        child: Icon(Icons.add),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              controller: _searchController1,
+              onChanged: (value) {
+                _searchData(value);
+              },
+              decoration: InputDecoration(
+                labelText: 'İl Giriniz',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              controller: _searchController2,
+              onChanged: (value) {
+                _searchDataa(value);
+              },
+              decoration: InputDecoration(
+                labelText: 'İlçe Giriniz',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_searchResults[index]["adrestarifi"]),
+                  subtitle: Text(_searchResults[index]["talep"]),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
