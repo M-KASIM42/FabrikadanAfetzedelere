@@ -67,7 +67,7 @@ class _MyMainPageState extends State<MyMainPage> {
                 child: Card(
                   child: Column(
                     children: [
-                      Image.network(company['photo']),
+                      Image.network(company['photo'],height: 100),
                       Expanded(child: Container()),
                       Text(company['name']),
                       Text(company['phone']),

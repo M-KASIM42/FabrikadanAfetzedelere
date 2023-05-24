@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Fabrikadan",
+              "Birlikte",
               style: TextStyle(
                   color: Colors.deepOrangeAccent[200],
                   fontSize: 50,
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 10,
             ),
             Text(
-              "Afetzedelere",
+              "Yardım",
               style: TextStyle(
                 color: Colors.deepOrangeAccent[200],
                 fontSize: 40,

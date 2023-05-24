@@ -23,14 +23,14 @@ class _RegisterPageState extends State<RegisterPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Fabrikadan",
+            "Birlikte",
             style: TextStyle(
-                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           Text(
-            "Afetzedelere",
+            "Yardım",
             style: TextStyle(
-                fontSize: 25,
+                fontSize: 40,
                 fontWeight: FontWeight.normal,
                 color: Colors.white),
           ),

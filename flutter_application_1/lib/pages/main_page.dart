@@ -38,9 +38,11 @@ class _MainPageState extends State<MainPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Fabrikadan Afetzedelere"),
+          title: const Text("Birlikte Yardım"),
         ),
         drawer: Drawer(
+          width: 250,
+          backgroundColor: Colors.white,
           child: Column(
             children: [
               Column(
@@ -86,10 +88,15 @@ class _MainPageState extends State<MainPage> {
                       onTap: () {
                         FirebaseAuth.instance.signOut();
                       },
-                    )
+                    ),
+                    
                   ],
                 ),
-              )
+              ),
+              Expanded(child: Container()),
+              Text("support_birlikteyardim@gmail.com",style: TextStyle(color: Colors.blueAccent),),
+              SizedBox(height: 10,)
+
             ],
           ),
         ),

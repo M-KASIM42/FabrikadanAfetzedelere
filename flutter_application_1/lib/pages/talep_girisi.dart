@@ -58,6 +58,7 @@ class _TalepGirisiState extends State<TalepGirisi> {
             mainAxisAlignment: MainAxisAlignment.center,
             
             children: [
+              SizedBox(height: 30,),
               Text("Bilgilerinizi Eksiksiz bir şekilde giriniz",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
               SizedBox(height: 20,),
               _buildContainer("İsim Soyisim", _fullNameController,20,1,TextInputType.name),
