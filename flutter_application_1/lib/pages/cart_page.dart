@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/payment_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -152,9 +153,11 @@ class _CartPageState extends State<CartPage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data!.docs.isEmpty) {
-            return const Text(
-              'Sepet Boş',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            return const Center(
+              child:  Text(
+                'Sepet Boş',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             );
           }
           int totalPrice = 0;
@@ -169,10 +172,13 @@ class _CartPageState extends State<CartPage> {
             totalPrice += subtotal;
           });
 
-          return Center(
-            child: Text(
-              'Sepet Toplamı: $totalPrice',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          return GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (paymentpage)=> PaymentPage())),
+            child: Center(
+              child: Text(
+                'Sepet Toplamı: $totalPrice',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           );
         } else if (snapshot.hasError) {
