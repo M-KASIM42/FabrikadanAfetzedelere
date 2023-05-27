@@ -91,7 +91,6 @@ class _CompanyPageState extends State<CompanyPage> {
     );
   }
 }
-// Sepet numarasını bir artır ve güncellemeleri Firestore'a kaydet
                             // cartnumber++;
                             // userDoc.reference.update({
                             //   "user_carts.cartnumber": cartnumber

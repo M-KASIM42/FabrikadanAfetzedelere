@@ -14,6 +14,7 @@ class MyMainPage extends StatefulWidget {
 
 class _MyMainPageState extends State<MyMainPage> {
   late String emails;
+
   Future<void> init() async {
     final user = FirebaseAuth.instance.currentUser!;
     emails = user.email!;
@@ -32,7 +33,6 @@ class _MyMainPageState extends State<MyMainPage> {
   }
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     init();
   }

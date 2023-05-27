@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PaymentPage extends StatefulWidget {
+  const PaymentPage({super.key});
+
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
@@ -22,7 +24,10 @@ class _PaymentPageState extends State<PaymentPage> {
   int _currentPageIndex = 0;
 
   List<Map<String, dynamic>> userCards = [];
+  final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
+  String selectedCard = "";
+  bool isLoading = false;
 
   void _fetchUserCards() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -48,7 +53,7 @@ class _PaymentPageState extends State<PaymentPage> {
             'expiryDateMonth': expiryDateMonth,
             'expiryDateYear': expiryDateYear,
             'cvcCode': cvcCode,
-            'cartName':cartName
+            'cartName': cartName
           });
         }
       }
@@ -60,7 +65,6 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _saveCardDetails() async {
-
     await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -70,7 +74,7 @@ class _PaymentPageState extends State<PaymentPage> {
       'expiryDateMonth': _expiryDateMonthController.text,
       'expiryDateYear': _expiryDateYearController.text,
       'cvcCode': _cvcCodeController.text,
-      'cartName':_cardNameController.text
+      'cartName': _cardNameController.text
     });
     showDialog(
       context: context,
@@ -113,9 +117,6 @@ class _PaymentPageState extends State<PaymentPage> {
   FocusNode _cartFocusNode = FocusNode();
   FocusNode _cartNameFocusNode = FocusNode();
 
-
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,7 +144,7 @@ class _PaymentPageState extends State<PaymentPage> {
                             width: 400,
                             height: 200,
                             margin: const EdgeInsets.all(10.0),
-                            padding: const EdgeInsets.all(20.0),
+                            padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
                             decoration: BoxDecoration(
                               color: Colors.deepPurple,
                               borderRadius: BorderRadius.circular(10.0),
@@ -151,30 +152,72 @@ class _PaymentPageState extends State<PaymentPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(height: 10,),
-                                Text(userCards[index]["cartName"]),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                Text(
-                                  userCards[index]["cardNumber"],
-                                  style: const TextStyle(fontSize: 18.0),
-                                ),
-                                Expanded(child: Container()),
                                 Row(
                                   children: [
-                                    Text("SKT  " +
-                                        userCards[index]["expiryDateMonth"] + "/" + userCards[index]["expiryDateYear"]),
+                                    Image.asset(
+                                      "assets/contact_less.png",
+                                      height: 30,
+                                    ),
                                     Expanded(child: Container()),
-                                    Text("CVC  " + userCards[index]["cvcCode"]),
+                                    Image.asset(
+                                      "assets/mastercard.png",
+                                      height: 60,
+                                    ),
                                     const SizedBox(
-                                      width: 20,
+                                      width: 10,
                                     )
                                   ],
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                )
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  userCards[index]["cartName"],
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "**** **** **** " +
+                                      userCards[index]["cardNumber"].substring(
+                                          userCards[index]["cardNumber"]
+                                                  .length -
+                                              4),
+                                  // userCards[index]["cardNumber"].toString().substring(),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("SKK"),
+                                        Text(userCards[index]
+                                                ["expiryDateMonth"] +
+                                            "/" +
+                                            userCards[index]["expiryDateYear"])
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("CVC"),
+                                        Text(userCards[index]["cvcCode"])
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                           );
@@ -216,7 +259,6 @@ class _PaymentPageState extends State<PaymentPage> {
                   border: Border.all(color: Colors.black),
                 ),
                 child: TextFormField(
-                  
                   onChanged: (text) {
                     if (text.isNotEmpty) {
                       if (text.length == 5 ||
@@ -240,8 +282,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           TextPosition(
                               offset: _cardNumberController.text.length),
                         );
-                      }
-                      else if(text.length == 19){
+                      } else if (text.length == 19) {
                         FocusScope.of(context).requestFocus(_cartFocusNode);
                       }
                     }
@@ -260,10 +301,10 @@ class _PaymentPageState extends State<PaymentPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Container(
-                    
                     padding: EdgeInsets.all(5),
-                    decoration:
-                        BoxDecoration(border: Border.all(color: Colors.black),borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5)),
                     height: 50,
                     width: 75,
                     child: TextFormField(
@@ -288,8 +329,9 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   Container(
                     padding: EdgeInsets.all(5),
-                    decoration:
-                        BoxDecoration(border: Border.all(color: Colors.black),borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5)),
                     height: 50,
                     width: 75,
                     child: TextFormField(
@@ -314,14 +356,16 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   Container(
                     padding: EdgeInsets.all(5),
-                    decoration:
-                        BoxDecoration(border: Border.all(color: Colors.black),borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5)),
                     height: 50,
                     width: 75,
                     child: TextFormField(
                       onChanged: (value) {
-                        if(value.length == 3){
-                          FocusScope.of(context).requestFocus(_cartNameFocusNode);
+                        if (value.length == 3) {
+                          FocusScope.of(context)
+                              .requestFocus(_cartNameFocusNode);
                         }
                       },
                       focusNode: _cvcFocusNode,
@@ -340,8 +384,9 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               Container(
                 padding: EdgeInsets.all(5),
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.black),borderRadius: BorderRadius.circular(5)),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5)),
                 height: 50,
                 width: 250,
                 child: TextFormField(
@@ -354,7 +399,9 @@ class _PaymentPageState extends State<PaymentPage> {
                       focusedBorder: InputBorder.none),
                 ),
               ),
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               ElevatedButton(
                 onPressed: () {
                   _saveCardDetails();
@@ -365,6 +412,88 @@ class _PaymentPageState extends State<PaymentPage> {
                   _cardNameController.clear();
                 },
                 child: const Text('Kart Bilgilerini Kaydet'),
+              ),
+              ExpansionTile(
+                title: selectedCard.isEmpty
+                    ? const Text("Kartlarım")
+                    : Text(selectedCard),
+                children: <Widget>[
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: userCards.length,
+                    itemBuilder: (context, index) {
+                      var cardInfo = userCards[index];
+                      String cardName = cardInfo['cartName'];
+                      String cardNumber = cardInfo['cardNumber'];
+                      String maskedCardNumber = "**** **** **** " +
+                          cardNumber.substring(cardNumber.length - 4);
+                      // Diğer kart bilgilerini burada alabilirsiniz
+
+                      return ListTile(
+                        onTap: () {
+                          setState(() {
+                            selectedCard = cardName;
+                          });
+                        },
+
+                        title: Row(
+                          children: [
+                            Text(cardName),
+                            Expanded(child: Container()),
+                            Text(maskedCardNumber)
+                          ],
+                        ),
+                        // Diğer kart bilgilerini burada gösterebilirsiniz
+                      );
+                    },
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  Future.delayed(Duration(seconds: 1), () {
+                    setState(() {
+                      isLoading = false;
+                    });
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Ödeme Yapıldı'),
+                          content: Text('Ödeme işlemi başarıyla tamamlandı.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                var sepetCollection = db
+                                    .collection("users")
+                                    .doc(user.uid)
+                                    .collection("sepet_1");
+                                QuerySnapshot snapshot =
+                                    await sepetCollection.get();
+                                for (DocumentSnapshot doc in snapshot.docs) {
+                                  await doc.reference.delete();
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Text('Tamam'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  });
+                },
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      ))
+                    : Text('Ödeme Yap'),
               ),
             ],
           ),
