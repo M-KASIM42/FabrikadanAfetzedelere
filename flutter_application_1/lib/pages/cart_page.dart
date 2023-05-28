@@ -13,18 +13,15 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser;
-  int cartNumber = 1;
   int toplamTutar = 0;
   int orderNumber = 1;
   @override
   void initState() {
     super.initState();
-    db.collection("users").doc(user!.uid).get().then((userDoc) =>
-        {cartNumber = userDoc.data()!["user_carts"]["cartnumber"]});
     db
         .collection("users")
         .doc(user!.uid)
-        .collection("sepet_$cartNumber")
+        .collection("sepet_1")
         .get()
         .then((querySnapshot) {
       orderNumber = querySnapshot.size + 1;
@@ -41,7 +38,7 @@ class _CartPageState extends State<CartPage> {
             stream: db
                 .collection("users")
                 .doc(user!.uid)
-                .collection("sepet_$cartNumber")
+                .collection("sepet_1")
                 .snapshots(),
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -63,64 +60,80 @@ class _CartPageState extends State<CartPage> {
                   DocumentSnapshot data = snapshot.data!.docs[index];
                   return Container(
                     width: double.infinity,
-                    height: 42,
+                    height: 200,
                     margin: const EdgeInsets.only(top: 20),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          color: Colors.pink,
-                          child: Column(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.network(
+                            data["photo"],
+                            height: 200,
+                          ),
+                          const SizedBox(
+                            width: 25,
+                          ),
+                          Column(
                             children: [
-                              Text(data["productName"]),
-                              const SizedBox(
-                                height: 10,
+                              SizedBox(height: 50,),
+                              Text(
+                                data["productName"],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 10),
                               ),
-                              Text(data['price'] + "   TL")
+                              SizedBox(height: 25,),
+                              Text(data['price'] + "   TL",style: TextStyle(color: Colors.deepOrangeAccent,fontSize: 15,fontWeight: FontWeight.bold),),
                             ],
                           ),
-                        ),
-                        Form(
-                          child: Container(
-                            padding: EdgeInsets.all(10),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                            height: 40,
+                            width: 65,
+                            margin: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            width: MediaQuery.of(context).size.width * 0.2,
-                            child: TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(),
-                              onChanged: (value) {
-                                // Girilen değeri quantity'ye atama
-                                int newQuantity;
-                                if (value.isEmpty) {
-                                  newQuantity = 0;
-                                } else {
-                                  newQuantity = int.parse(value);
-                                } // Girilen değeri integer'a dönüştür
-
-                                // quantity alanını güncelle
-
-                                db
-                                    .collection("users")
-                                    .doc(user!.uid)
-                                    .collection("sepet_$cartNumber")
-                                    .doc("order_${index + 1}")
-                                    .update({"quantity": newQuantity}).then(
-                                        (value) {
-                                  debugPrint(
-                                      "Quantity güncellendi: $newQuantity");
-                                }).catchError((error) {
-                                  debugPrint(
-                                      "Quantity güncelleme hatası: $error");
-                                });
-                              },
-                              initialValue: data["quantity"].toString(),
+                            child: Center(
+                              child: TextFormField(
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value) {
+                                  int newQuantity;
+                                  if (value.isEmpty) {
+                                    newQuantity = 0;
+                                  } else {
+                                    newQuantity = int.parse(value);
+                                  }
+                                  db
+                                      .collection("users")
+                                      .doc(user!.uid)
+                                      .collection("sepet_1")
+                                      .doc("order_${index + 1}")
+                                      .update({"quantity": newQuantity}).then(
+                                          (value) {
+                                    debugPrint(
+                                        "Quantity güncellendi: $newQuantity");
+                                  }).catchError((error) {
+                                    debugPrint(
+                                        "Quantity güncelleme hatası: $error");
+                                  });
+                                },
+                                initialValue: data["quantity"].toString(),
+                                textAlign: TextAlign.left,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -136,25 +149,23 @@ class _CartPageState extends State<CartPage> {
                 color: Colors.amber[900],
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 50,
-                child:
-                    buildCartTotal(context, user!.uid, cartNumber.toString())))
+                child: buildCartTotal(context, user!.uid)))
       ],
     );
   }
 
-  Widget buildCartTotal(
-      BuildContext context, String userId, String cartNumber) {
+  Widget buildCartTotal(BuildContext context, String userId) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection('sepet_$cartNumber')
+          .collection('sepet_1')
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data!.docs.isEmpty) {
             return const Center(
-              child:  Text(
+              child: Text(
                 'Sepet Boş',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -173,7 +184,8 @@ class _CartPageState extends State<CartPage> {
           });
 
           return GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (paymentpage)=> PaymentPage())),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (paymentpage) => PaymentPage())),
             child: Center(
               child: Text(
                 'Sepet Toplamı: $totalPrice',
@@ -185,7 +197,9 @@ class _CartPageState extends State<CartPage> {
           return Text('Veriler alınırken bir hata oluştu.');
         }
 
-        return const Center(child: Text("Sepet Yükleniyor"),);
+        return const Center(
+          child: Text("Sepet Yükleniyor"),
+        );
       },
     );
   }

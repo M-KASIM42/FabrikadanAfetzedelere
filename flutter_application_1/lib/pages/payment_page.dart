@@ -1,12 +1,13 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api
+// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/pages/my_main_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PaymentPage extends StatefulWidget {
-  const PaymentPage({super.key});
+  const PaymentPage({Key? key}) : super(key: key);
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -451,15 +452,15 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    isLoading = true;
-                  });
-
-                  Future.delayed(Duration(seconds: 1), () {
+                  if (selectedCard.isNotEmpty) {
                     setState(() {
-                      isLoading = false;
+                      isLoading = true;
                     });
-
+                    Future.delayed(Duration(seconds: 1), () {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    });
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -475,18 +476,55 @@ class _PaymentPageState extends State<PaymentPage> {
                                     .collection("sepet_1");
                                 QuerySnapshot snapshot =
                                     await sepetCollection.get();
+
+                                var yeniKoleksiyon = db
+                                    .collection("users")
+                                    .doc(user.uid)
+                                    .collection("yeni_sepet");
+
                                 for (DocumentSnapshot doc in snapshot.docs) {
+                                  // Veriyi yeni koleksiyona kaydedin
+                                  await yeniKoleksiyon.add(
+                                      Map<String, dynamic>.from(
+                                          doc.data() as Map<String, dynamic>));
+
+                                  // İlgili belgeyi eski koleksiyondan silin
                                   await doc.reference.delete();
                                   Navigator.pop(context);
                                 }
                               },
-                              child: Text('Tamam'),
+                              child: const Text('Tamam'),
                             ),
                           ],
                         );
                       },
                     );
-                  });
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Kart Seçiniz"),
+                          content: Text("Lütfen bir kart seçin."),
+                          actions: [
+                            ElevatedButton(
+                              child: Text("İptal"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            ElevatedButton(
+                              child: Text("Tamam"),
+                              onPressed: () {
+                                // Kart seçimi tamamlandığında yapılacak işlemler
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 child: isLoading
                     ? Center(

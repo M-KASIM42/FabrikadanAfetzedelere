@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/product_page.dart';
 
 class CompanyPage extends StatefulWidget {
   final List<Map<String, dynamic>> list;
@@ -13,59 +14,96 @@ class CompanyPage extends StatefulWidget {
 class _CompanyPageState extends State<CompanyPage> {
   final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
-  int cartNumber = 1;
 
   @override
   void initState() {
     super.initState();
-    db.collection("users").doc(user.uid).get().then((userDoc) =>
-        {cartNumber = userDoc.data()!["user_carts"]["cartnumber"]});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: ListView.builder(
-            itemCount: widget.list.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(widget.list[index]['productname']),
-                subtitle: Text(widget.list[index]["price"] + "     TL"),
-                trailing: InkWell(
-                    child: Icon(Icons.add),
-                    onTap: () {
-                      db
-                          .collection("users")
-                          .doc(user.uid)
-                          .collection("sepet_$cartNumber")
-                          .get()
-                          .then((querySnapshot) {
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Sütun sayısını belirttik
+            mainAxisSpacing: 10.0, // Dikey boşluk
+            crossAxisSpacing: 10.0, // Yatay boşluk
+            childAspectRatio: 0.65),
+        itemCount: widget.list.length,
+        itemBuilder: (context, index) {
+          return Container(
+            height: 150,
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                GestureDetector(
+                  child: Image.network(
+                    widget.list[index]["photo"],
+                    height: 150,
+                    width: 150,
+                    fit: BoxFit.fill,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (productPage) =>
+                                ProductPage(url: widget.list[index]["photo"])));
+                  },
+                ),
+                Text(widget.list[index]['productname']),
+                Text(widget.list[index]['price'] + "    TL"),
+                ElevatedButton(
+                  onPressed: () {
+                    db
+                        .collection("users")
+                        .doc(user.uid)
+                        .collection("sepet_1")
+                        .get()
+                        .then(
+                      (querySnapshot) {
                         bool productAlreadyInCart = false;
                         String productName = widget.list[index]['productname'];
 
-                        querySnapshot.docs.forEach((doc) {
-                          if (doc.data()['productName'] == productName) {
-                            productAlreadyInCart = true;
-                            int currentQuantity = doc.data()['quantity'];
-                            int newQuantity = currentQuantity + 1;
+                        querySnapshot.docs.forEach(
+                          (doc) {
+                            if (doc.data()['productName'] == productName) {
+                              productAlreadyInCart = true;
+                              int currentQuantity = doc.data()['quantity'];
+                              int newQuantity = currentQuantity + 1;
 
-                            // Belgenin quantity alanını güncelle
-                            db
-                                .collection("users")
-                                .doc(user.uid)
-                                .collection("sepet_$cartNumber")
-                                .doc(doc.id)
-                                .update({"quantity": newQuantity}).then(
-                                    (value) {
-                              debugPrint("Quantity artırıldı.");
-                            }).catchError((error) {
-                              debugPrint("Quantity artırma hatası: $error");
-                            });
+                              // Belgenin quantity alanını güncelle
+                              db
+                                  .collection("users")
+                                  .doc(user.uid)
+                                  .collection("sepet_1")
+                                  .doc(doc.id)
+                                  .update({"quantity": newQuantity}).then(
+                                (value) {
+                                  debugPrint("Quantity artırıldı.");
+                                },
+                              ).catchError(
+                                (error) {
+                                  debugPrint("Quantity artırma hatası: $error");
+                                },
+                              );
 
-                            return;
-                          }
-                        });
+                              return;
+                            }
+                          },
+                        );
 
                         if (!productAlreadyInCart) {
                           // Ürün sepette değilse, sepete ekleme işlemini burada gerçekleştir
@@ -73,27 +111,31 @@ class _CompanyPageState extends State<CompanyPage> {
                           db
                               .collection("users")
                               .doc(user.uid)
-                              .collection("sepet_$cartNumber")
+                              .collection("sepet_1")
                               .doc("order_$orderNumber")
-                              .set({
-                            "productName": widget.list[index]['productname'],
-                            "price": widget.list[index]['price'],
-                            "quantity": 1
-                          }).then((value) {
-                            debugPrint("Sipariş eklendi");
-                          });
+                              .set(
+                            {
+                              "productName": widget.list[index]['productname'],
+                              "price": widget.list[index]['price'],
+                              "quantity": 1,
+                              "photo": widget.list[index]["photo"]
+                            },
+                          ).then(
+                            (value) {
+                              debugPrint("Sipariş eklendi");
+                            },
+                          );
                         }
-                      });
-                    }),
-              );
-            }),
+                      },
+                    );
+                  },
+                  child: const Text("Sepete Ekle"),
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
-                            // cartnumber++;
-                            // userDoc.reference.update({
-                            //   "user_carts.cartnumber": cartnumber
-                            // }).then((value) {
-                            //   debugPrint("Sepet numarası güncellendi.");
-                            // });
