@@ -12,20 +12,33 @@ void main() async{
   await Firebase.initializeApp();
   runApp(MaterialApp(debugShowCheckedModeBanner: false,home:MyApp()));
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(),builder: (context, snapshot) {
-        if(snapshot.hasData){
+      body: StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      User? user = snapshot.data;
+      if (user != null) {
+        if (user.emailVerified) {
           return MainPage();
-        }
-        else{
+        } else {
           return LoginPage();
         }
-      },)
+      } else {
+        return LoginPage();
+      }
+    } else {
+      return LoginPage();
+    }
+  },
+)
+
     );
   }
 }

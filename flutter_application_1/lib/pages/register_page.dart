@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -80,9 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: BoxDecoration(
                   color: Colors.green[100],
                   borderRadius: BorderRadius.circular(15)),
-                child: TextFormField(
-                  
-
+              child: TextFormField(
                 autovalidateMode: AutovalidateMode.always,
                 validator: (value) {
                   if (_passwordController.text.trim() !=
@@ -106,23 +105,49 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           GestureDetector(
             onTap: () async {
-              if (_passwordController.text.trim() ==
-                  _rePasswordController.text.trim()) {
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                    email: _emailController.text.trim(),
-                    password: _passwordController.text.trim());
-                    
-                Navigator.pop(context);
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("Parolalar uyuşmuyor"),
-                      content: Text("Parola değiştir"),
-                    );
-                  },
-                );
+              String email = _emailController.text.trim();
+              String password = _passwordController.text.trim();
+              String rePassword = _rePasswordController.text.trim();
+
+              if (password == rePassword) {
+                try {
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );
+
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Kayıt Başarılı"),
+                        content: Text(
+                            "Kayıt işlemi tamamlandı. E-posta adresinizi doğrulamak için bir doğrulama bağlantısı gönderildi."),
+                      );
+                    },
+                  );
+
+                  // E-posta doğrulama e-postası gönderme
+                  User? user = FirebaseAuth.instance.currentUser;
+                  await user?.sendEmailVerification();
+
+                  Future.delayed(Duration(seconds: 2));
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (loginpage) => LoginPage()),
+                  );
+                } catch (error) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Hata"),
+                        content: Text(error.toString()),
+                      );
+                    },
+                  );
+                }
               }
             },
             child: Container(
@@ -136,13 +161,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Text(
                   "Kayıt Ol",
                   style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

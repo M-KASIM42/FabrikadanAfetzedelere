@@ -24,6 +24,7 @@ class _CompanyPageState extends State<CompanyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GridView.builder(
+        
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Sütun sayısını belirttik
             mainAxisSpacing: 10.0, // Dikey boşluk
@@ -32,6 +33,7 @@ class _CompanyPageState extends State<CompanyPage> {
         itemCount: widget.list.length,
         itemBuilder: (context, index) {
           return Container(
+            margin: EdgeInsets.only(top: 10),
             height: 150,
             decoration: BoxDecoration(
               boxShadow: [
@@ -49,11 +51,16 @@ class _CompanyPageState extends State<CompanyPage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 GestureDetector(
-                  child: Image.network(
-                    widget.list[index]["photo"],
-                    height: 150,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: NetworkImage(widget.list[index]["photo"]),
+                      ),
+                    ),
                     width: 150,
-                    fit: BoxFit.fill,
+                    height: 150,
                   ),
                   onTap: () {
                     Navigator.push(
@@ -64,7 +71,26 @@ class _CompanyPageState extends State<CompanyPage> {
                   },
                 ),
                 Text(widget.list[index]['productname']),
-                Text(widget.list[index]['price'] + "    TL"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      widget.list[index]["oldprice"] + " TL",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration
+                            .lineThrough, // Kırmızı çizgi eklemek için
+                        decorationColor: Colors.redAccent, // Çizgi rengi
+                        decorationThickness: 2.0, // Çizgi kalınlığı
+                      ),
+                    ),
+                    Text("    yerine"),
+                    Text(widget.list[index]['price'] + " TL",style: TextStyle(
+                      fontSize: 20,fontWeight: FontWeight.bold
+                    ),),
+                  ],
+                ),
                 ElevatedButton(
                   onPressed: () {
                     db

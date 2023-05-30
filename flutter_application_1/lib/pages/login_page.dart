@@ -4,7 +4,9 @@ import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/pages/forgot_password.dart';
+import 'package:flutter_application_1/pages/my_main_page.dart';
 import 'package:flutter_application_1/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -102,17 +104,48 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SizedBox(height: 10,),
-            ElevatedButton(onPressed: () async {
-              try {
-                 await FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text.trim(), password: _passwordController.text.trim());
+            ElevatedButton(
+  onPressed: () async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim());
 
-              } catch (e) {
-                showDialog(context: context, builder: (context){
-                  return AlertDialog(content: Text(e.toString()),);
-                });
-              }
-            }, 
-            child: Text("Giriş Yap"),),
+      // Kullanıcının e-posta doğrulaması yapılmış mı kontrol etme
+      if (userCredential.user != null) {
+        User user = userCredential.user!;
+        if (user.emailVerified) {
+          Navigator.push(context, MaterialPageRoute(builder: (mymainpage)=>MyApp()));
+        } else {
+          // E-posta doğrulaması yapılmamış kullanıcı
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("E-posta Doğrulaması Gerekli"),
+                content: Text(
+                    "Lütfen e-posta adresinizi doğrulayın. Doğrulama bağlantısı için e-posta gönderildi."),
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Hata"),
+            content: Text("Bilgilerinizi kontrol edip tekrar deneyin!"),
+          );
+        },
+      );
+    }
+  },
+  child: Text("Giriş Yap"),
+),
+
             SizedBox(height: 15,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -102,7 +102,8 @@ class _MyMainPageState extends State<MyMainPage> {
       mylist.add({
         'productname': product['productname'],
         'price': product['price'],
-        'photo': product['photo']
+        'photo': product['photo'],
+        'oldprice':product["oldprice"]
       });
     }
     return mylist;

@@ -490,7 +490,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
                                   // İlgili belgeyi eski koleksiyondan silin
                                   await doc.reference.delete();
-                                  Navigator.pop(context);
+                                  Navigator.push(context, MaterialPageRoute(builder: (mymainpage)=>MyMainPage()));
                                 }
                               },
                               child: const Text('Tamam'),
